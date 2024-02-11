@@ -1,4 +1,15 @@
-import { Controller, Post, Body, ConflictException, InternalServerErrorException, UnauthorizedException, Get, Req, Res, HttpStatus } from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Body,
+    ConflictException,
+    InternalServerErrorException,
+    UnauthorizedException,
+    Get,
+    Req,
+    Res,
+    HttpStatus,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersModel } from 'src/users/entities/users.entity';
@@ -34,10 +45,16 @@ export class AuthController {
 
     @Post('login')
     async login(@Body() loginUserDto: CreateUserDto): Promise<{ access_token: string }> {
+
+        console.log("loginUserDto : ", loginUserDto);
+
+
         const user = await this.authService.validateUser(loginUserDto.email, loginUserDto.password);
+
         if (!user) {
             throw new UnauthorizedException('Invalid credentials');
         }
+
         return this.authService.login(user);
     }
 
@@ -58,7 +75,13 @@ export class AuthController {
                 user: newUser,
             };
         } catch (error) {
-            throw new InternalServerErrorException(`회원 가입 실패: ${error.message}`);
+            if (error instanceof ConflictException) {
+                // 이메일 중복 오류를 클라이언트에게 전달
+                throw new ConflictException('이미 존재하는 이메일입니다.');
+            } else {
+                // 다른 예외 오류 처리
+                throw new InternalServerErrorException('회원 가입 중 오류가 발생했습니다.');
+            }
         }
     }
 
