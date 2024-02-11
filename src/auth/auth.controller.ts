@@ -20,8 +20,8 @@ import { Request, Response } from 'express';
 export class AuthController {
     constructor(private authService: AuthService) { }
 
-    @Get('validateUser')
-    validateUser(@Req() req: Request, @Res() res: Response) {
+    @Get('loginCheck')
+    loginCheck(@Req() req: Request, @Res() res: Response) {
         // 요청 객체에서 사용자 정보를 가져옴
         const loginUser = req.user;
 
